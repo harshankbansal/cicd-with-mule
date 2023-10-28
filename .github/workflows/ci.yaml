@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/*
 
 jobs:
 
@@ -11,4 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Echo"
-        run: echo 'hello world!!'
+        run: echo 'hello world!!
+
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.13.0
+        with:
+          java-version: 1.8
+          distribution: oracle
+          architecture: x64
+          overwrite-settings: false
+    
