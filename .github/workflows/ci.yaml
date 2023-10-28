@@ -10,12 +10,18 @@ jobs:
 
   hello-world:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: "Echo"
-        run: echo 'hello world!!
+        run: echo 'hello world!!'
 
   setup:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
