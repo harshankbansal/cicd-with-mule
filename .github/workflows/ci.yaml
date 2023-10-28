@@ -28,6 +28,12 @@ jobs:
           architecture: x64
           overwrite-settings: false
 
+      - name: Check java version
+        run: java --version
+
+      - name: Check maven version
+        run: mvn --version
+
   echo-java-version:
     runs-on: ubuntu-latest
     needs: 
