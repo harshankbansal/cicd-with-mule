@@ -1,0 +1,14 @@
+name: CI only
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  hello-world:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Echo"
+        run: echo 'hello world!!'
