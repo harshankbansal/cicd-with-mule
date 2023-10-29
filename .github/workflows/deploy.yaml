@@ -1,7 +1,7 @@
 name: CD only
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       targetEnv:
         required: true
