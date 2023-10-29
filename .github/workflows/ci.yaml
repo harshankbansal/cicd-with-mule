@@ -83,6 +83,12 @@ jobs:
         env:
           EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
           EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
+          DEPLOY_ENV: ${{ vars.DEPLOY_ENV }}
+          MULE_ENV: ${{ vars.MULE_ENV }}
+          DEPLOY_TARGET: ${{ vars.DEPLOY_TARGET }}
+          MAVEN_SETTINGS_SERVER_ID: ${{ vars.MAVEN_SETTINGS_SERVER_ID }}
+          DEPLOY_REPLICAS: ${{ vars.DEPLOY_REPLICAS }}
+          DEPLOY_VCORES: ${{ vars.DEPLOY_VCORES }}
         run: | 
             mvn clean deploy -DskipTests \
                 -DmuleDeploy \
