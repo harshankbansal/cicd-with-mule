@@ -65,10 +65,8 @@ jobs:
               ref: '${{ inputs.gitRef || github.ref_name }}'
             })
             const sha = commit.data.sha
-            console.log(`Using commit SHA: ${sha}`)
+            console.log(`Got commit SHA: ${sha}`)
             return sha
-      - name: print sha
-        run: echo ${{ steps.getSha.outputs.result }}
   create-git-tag:
     runs-on: ubuntu-latest
     name: Create tag
@@ -83,10 +81,11 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
+            console.log(`Creating tag with name: ${process.env.TAG_NAME} on SHA: ${process.env.TAG_SHA}`)
             const createRefResponse = await github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: `refs/tags/${process.env.TAG_NAME}`,
-              sha: process.env.TAG_SHA
+              sha: `${process.env.TAG_SHA}`
             })
             console.log(createRefResponse)
