@@ -25,7 +25,7 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
         with:
-          java-version: 8
+          java-version: 8  
           distribution: zulu
           architecture: x64
           overwrite-settings: false
@@ -52,11 +52,19 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Publish To Exchange
-        run: mvn clean deploy -DskipTests
+        env:
+          EXCHANGE_CLIENT_ID: ${{ EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ EXCHANGE_CLIENT_SECRET }}
+        run: |
+            mvn clean deploy \
+                -DskipTests \
+                --settings .github/mvn-config/settings.xml \
+                -Dexchange.clientId=$EXCHANGE_CLIENT_ID
+                -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
   
   deploy_to_dev:
     runs-on: ubuntu-latest
-    name: Build & Deploy To Dev
+    name: Deploy To Dev
     needs: 
       - publish_to_exchange
     steps:
@@ -71,5 +79,19 @@ jobs:
       - uses: actions/checkout@v2
           
       - name: Deploy to Dev
-        run: mvn clean deploy -DskipTests -DmuleDeploy -Ddeploy.env=Sandbox -Dsettings.serverid=corporate-exchange-v3
-  
+        environment: Dev
+        env:
+          EXCHANGE_CLIENT_ID: ${{ EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ EXCHANGE_CLIENT_SECRET }}
+        run: | 
+            mvn clean deploy -DskipTests \ 
+                -DmuleDeploy \
+                --settings .github/mvn-config/settings.xml \
+                -Ddeploy.env=$DEPLOY_ENV  \
+                -Dmule.env=$MULE_ENV \
+                -Ddeploy.target=$DEPLOY_TARGET \
+                -Dmvnsettings.serverid=$MAVEN_SETTINGS_SERVER_ID \
+                -Ddeploy.replicas=$DEPLOY_REPLICAS \
+                -Ddeploy.vCores=$DEPLOY_VCORES \ 
+                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
+                -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
