@@ -7,6 +7,12 @@ on:
         required: true
         type: string
         description: The branch, tag or SHA to checkout
+      
+      removeSnapshotFromVersion:
+        required: false
+        type: boolean
+        default: false
+        description: If 'SNAPSHOT' needs to be removed from version before publishing to exchange
     secrets:
       EXCHANGE_CLIENT_ID:
         required: true
@@ -35,6 +41,14 @@ jobs:
         with:
           ref: ${{ inputs.gitRef }}
 
+      - name: Remove SNAPSHOT if required
+        if: ${{ inputs.removeSnapshotFromVersion}}
+        run: |
+            mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
+            newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
+            echo "New version after removing SNAPSHOT = $newPomVersion"
+            echo "newPomVersion=$newPomVersion" >> "$GITHUB_OUTPUT" 
+            
       - name: Publish To Exchange
         env:
           EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
