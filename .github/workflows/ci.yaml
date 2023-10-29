@@ -70,5 +70,5 @@ jobs:
         target: [ Dev, UAT ]
     uses: ./.github/workflows/deploy.yaml
     with:
-      target-env: ${ { matrix.target } }
+      targetEnv: ${ { matrix.target } }
     secrets: inherit
