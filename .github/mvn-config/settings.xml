@@ -13,6 +13,11 @@
       <username>~~~Client~~~</username>
       <password>${exchange.clientId}~?~${exchange.clientSecret}</password>
     </server>
+	<server>
+      <id>anypoint-exchange-v3</id>
+      <username>~~~Client~~~</username>
+      <password>${exchange.clientId}~?~${exchange.clientSecret}</password>
+    </server>
   </servers>
 
   <mirrors></mirrors>
