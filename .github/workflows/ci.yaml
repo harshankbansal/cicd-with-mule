@@ -53,8 +53,8 @@ jobs:
 
       - name: Publish To Exchange
         env:
-          EXCHANGE_CLIENT_ID: ${{ EXCHANGE_CLIENT_ID }}
-          EXCHANGE_CLIENT_SECRET: ${{ EXCHANGE_CLIENT_SECRET }}
+          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
         run: |
             mvn clean deploy \
                 -DskipTests \
@@ -65,6 +65,7 @@ jobs:
   deploy_to_dev:
     runs-on: ubuntu-latest
     name: Deploy To Dev
+    environment: Dev
     needs: 
       - publish_to_exchange
     steps:
@@ -79,10 +80,9 @@ jobs:
       - uses: actions/checkout@v2
           
       - name: Deploy to Dev
-        environment: Dev
         env:
-          EXCHANGE_CLIENT_ID: ${{ EXCHANGE_CLIENT_ID }}
-          EXCHANGE_CLIENT_SECRET: ${{ EXCHANGE_CLIENT_SECRET }}
+          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
         run: | 
             mvn clean deploy -DskipTests \ 
                 -DmuleDeploy \
