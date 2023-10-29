@@ -76,10 +76,17 @@ jobs:
       - pom-semver-without-snapshot
       - get-commit-sha-for-ref
     env:
-      gitRef: ${{ inputs.gitRef || github.ref_name}}
-      tagVersion: v${{ needs.pom-semver-without-snapshot.outputs.newPomVersion }}
-      sha: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
+      TAG_NAME: v${{ needs.pom-semver-without-snapshot.outputs.newPomVersion }}
+      TAG_SHA: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
     steps:
-      - run: echo "${gitRef} - ${tagVersion} - ${sha}"
-      
- 
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const createRefResponse = await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${process.env.TAG_NAME}`,
+              sha: process.env.TAG_SHA
+            })
+            console.log(createRefResponse)
