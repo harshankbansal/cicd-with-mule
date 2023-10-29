@@ -66,7 +66,7 @@ jobs:
             })
             const sha = commit.data.sha
             console.log(`Got commit SHA: ${sha}`)
-            return String(sha)
+            return sha.toString()
   create-git-tag:
     runs-on: ubuntu-latest
     name: Create tag
