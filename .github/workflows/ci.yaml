@@ -27,7 +27,7 @@ jobs:
           architecture: x64
           overwrite-settings: false
           
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Run Unit tests
         run: mvn clean test
@@ -37,29 +37,12 @@ jobs:
     name: Publish to exchange
     needs:
       - unit-tests
-    steps:
-      - name: Setup Java JDK
-        uses: actions/setup-java@v3.13.0
-        with:
-          java-version: 8
-          distribution: zulu
-          architecture: x64
-          overwrite-settings: false
-          
-      - uses: actions/checkout@v2
-
-      - name: Publish To Exchange
-        env:
-          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
-          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
-        run: |
-            mvn clean deploy \
-                -DskipTests \
-                --settings .github/mvn-config/settings.xml \
-                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
-                -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      gitRef: ${{ vars.GITHUB_SHA }}
+    secrets: inherit
   
-  deploy:
+  deployToNonprod:
     name: Deploy To ${{ matrix.target }}
     needs: 
       - publish-to-exchange

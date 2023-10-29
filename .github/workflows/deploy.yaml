@@ -31,7 +31,7 @@ jobs:
           architecture: x64
           overwrite-settings: false
           
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
           
       - name: Deploy to ${{ inputs.targetEnv }}
         env:

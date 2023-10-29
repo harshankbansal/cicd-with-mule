@@ -1,0 +1,47 @@
+name: Publish to exchange
+
+on:
+  workflow_call:
+    inputs:
+      gitRef:
+        required: true
+        type: string
+        description: The branch, tag or SHA to checkout
+    secrets:
+      EXCHANGE_CLIENT_ID:
+        required: true
+      EXCHANGE_CLIENT_SECRET:
+        required: true  
+
+defaults:
+  run:
+      shell: bash  
+
+jobs:
+
+  publish-to-exchange:
+    runs-on: ubuntu-latest
+    name: Publish to exchange
+    steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.13.0
+        with:
+          java-version: 8
+          distribution: zulu
+          architecture: x64
+          overwrite-settings: false
+          
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.gitRef }}
+
+      - name: Publish To Exchange
+        env:
+          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
+        run: |
+            mvn clean deploy \
+                -DskipTests \
+                --settings .github/mvn-config/settings.xml \
+                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
+                -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
