@@ -68,7 +68,7 @@ jobs:
       max-parallel: 1
       matrix:
         target: [ Dev, UAT ]
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/deploy.yaml
     with:
       target-env: ${ { matrix.target } }
     secrets: inherit
