@@ -59,7 +59,7 @@ jobs:
             mvn clean deploy \
                 -DskipTests \
                 --settings .github/mvn-config/settings.xml \
-                -Dexchange.clientId=$EXCHANGE_CLIENT_ID
+                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
                 -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
   
   deploy_to_dev:
