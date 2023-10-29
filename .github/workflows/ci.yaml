@@ -1,7 +1,7 @@
 name: CI only
 
 on:
-  repository_dispatch:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -59,7 +59,7 @@ jobs:
             mvn clean deploy \
                 -DskipTests \
                 --settings .github/mvn-config/settings.xml \
-                -Dexchange.clientId=$EXCHANGE_CLIENT_ID
+                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
                 -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
   
   deploy_to_dev:
@@ -83,15 +83,21 @@ jobs:
         env:
           EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
           EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
+          DEPLOY_ENV: ${{ vars.DEPLOY_ENV }}
+          MULE_ENV: ${{ vars.MULE_ENV }}
+          DEPLOY_TARGET: ${{ vars.DEPLOY_TARGET }}
+          MAVEN_SETTINGS_SERVER_ID: ${{ vars.MAVEN_SETTINGS_SERVER_ID }}
+          DEPLOY_REPLICAS: ${{ vars.DEPLOY_REPLICAS }}
+          DEPLOY_VCORES: ${{ vars.DEPLOY_VCORES }}
         run: | 
-            mvn clean deploy -DskipTests \ 
+            mvn clean deploy -DskipTests \
                 -DmuleDeploy \
                 --settings .github/mvn-config/settings.xml \
-                -Ddeploy.env=$DEPLOY_ENV  \
+                -Ddeploy.env=$DEPLOY_ENV \
                 -Dmule.env=$MULE_ENV \
                 -Ddeploy.target=$DEPLOY_TARGET \
                 -Dmvnsettings.serverid=$MAVEN_SETTINGS_SERVER_ID \
                 -Ddeploy.replicas=$DEPLOY_REPLICAS \
-                -Ddeploy.vCores=$DEPLOY_VCORES \ 
+                -Ddeploy.vCores=$DEPLOY_VCORES \
                 -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
                 -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
