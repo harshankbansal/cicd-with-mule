@@ -63,9 +63,10 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: '${{ inputs.gitRef || github.ref_name }}'
-            }).data
-            console.log(`Using commit SHA: ${commit.sha}`)
-            return commit.sha
+            })
+            const sha = commit.data.sha
+            console.log(`Using commit SHA: ${sha}`)
+            return sha
       - name: print sha
         run: echo ${{ steps.getSha.outputs.result }}
   create-git-tag:
