@@ -63,7 +63,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: '${{ inputs.gitRef || github.ref_name }}'
-            })
+            }).data
             console.log(`Using commit SHA: ${commit.sha}`)
             return commit.sha
       - name: print sha
