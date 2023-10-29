@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+
+  <pluginGroups></pluginGroups>
+  <proxies></proxies>
+  <servers>
+	<server>
+      <id>corporate-exchange-v3</id>
+      <username>~~~Client~~~</username>
+      <password>${exchange.clientId}~?~${exchange.clientSecret}</password>
+    </server>
+	<server>
+      <id>anypoint-exchange-v3</id>
+      <username>~~~Client~~~</username>
+      <password>${exchange.clientId}~?~${exchange.clientSecret}</password>
+    </server>
+  </servers>
+
+  <mirrors></mirrors>
+  <profiles></profiles>
+</settings>

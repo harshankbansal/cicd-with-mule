@@ -42,12 +42,19 @@
 						<provider>MC</provider>
 						<environment>${deploy.env}</environment>
 						<applicationName>${deploy.applicationName}</applicationName>
-						<replicas>1</replicas>
-						<vCores>1</vCores>
-						<server>corporate-exchange-v3</server>
+						<replicas>${deploy.replicas}</replicas>
+						<vCores>${deploy.vCores}</vCores>
+						<server>${mvnsettings.serverid}</server>
 						<properties>
 							<mule.env>${mule.env}</mule.env>
 						</properties>
+						<integrations>
+							<services>
+								<objectStoreV2>
+									<enabled>true</enabled>
+								</objectStoreV2>
+							</services>
+						</integrations>
 					</cloudhub2Deployment>
 				</configuration>
 			</plugin>
