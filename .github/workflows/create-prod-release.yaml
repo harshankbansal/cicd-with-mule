@@ -48,17 +48,15 @@ jobs:
             newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
             echo "New version after removing SNAPSHOT = $newPomVersion"
             echo "newPomVersion=$newPomVersion" >> "$GITHUB_OUTPUT"    
-  
-  create-git-tag:
+
+  get-commit-sha-for-ref:
     runs-on: ubuntu-latest
-    name: Create tag
-    needs: 
-      - pom-semver-without-snapshot
-    env:
-      gitRef: ${{ inputs.gitRef }}
-      tagVersion: v${{needs.pom-semver-without-snapshot.outputs.newPomVersion}}
+    name: Get Commit SHA
+    outputs:
+      sha: ${{ steps.getSha.outputs.result }}
     steps:
       - name: Get SHA hash of gitRef
+        id: getSha
         uses: actions/github-script@v5
         with:
           script: |
@@ -68,4 +66,18 @@ jobs:
               ref: '${{ inputs.gitRef }}'
             })
             console.log(commit)
+            return commit.sha
+  create-git-tag:
+    runs-on: ubuntu-latest
+    name: Create tag
+    needs: 
+      - pom-semver-without-snapshot
+      - get-commit-sha-for-ref
+    env:
+      gitRef: ${{ inputs.gitRef }}
+      tagVersion: v${{ needs.pom-semver-without-snapshot.outputs.newPomVersion }}
+      sha: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
+    steps:
+      - run: echo "${gitRef} - ${tagVersion} - ${sha}"
+      
  
