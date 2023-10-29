@@ -61,5 +61,5 @@ jobs:
       - deploy-to-nonprod
     uses: ./.github/workflows/create-prod-release.yaml
     with:
-      targetEnv: Production
+      gitRef: ${{ github.ref_name }}
     secrets: inherit
