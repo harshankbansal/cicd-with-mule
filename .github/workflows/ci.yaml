@@ -70,8 +70,9 @@ jobs:
     environment: ${{ matrix.target }}
     strategy:
       fail-fast: true
+      max-parallel: 1
       matrix:
-        target: [Dev, UAT ]
+        target: [ Dev, UAT ]
     needs: 
       - publish_to_exchange
     steps:
