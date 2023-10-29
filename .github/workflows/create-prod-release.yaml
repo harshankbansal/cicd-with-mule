@@ -97,7 +97,7 @@ jobs:
     uses: ./.github/workflows/publish-to-exchange.yaml
     with:
       gitRef: ${{ needs.create-git-tag.outputs.tagName }}
-      removeSnapshot: true
+      removeSnapshotFromVersion: true
     secrets: inherit
 
   deployToProd:

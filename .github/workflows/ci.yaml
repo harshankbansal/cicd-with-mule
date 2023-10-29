@@ -41,7 +41,7 @@ jobs:
       gitRef: ${{ vars.GITHUB_SHA }}
     secrets: inherit
   
-  deployToNonProd:
+  deploy-to-nonprod:
     name: Deploy to ${{ matrix.target }}
     needs: 
       - publish-to-artifactory
@@ -53,4 +53,14 @@ jobs:
     uses: ./.github/workflows/deploy.yaml
     with:
       targetEnv: ${{ matrix.target }}
+    secrets: inherit
+    
+  createRelease:
+    if: ${{ github.event_name == 'push' }}
+    environment: ${{ inputs.targetEnv }}
+    needs: 
+      - deploy-to-nonprod
+    uses: ./.github/workflows/create-prod-release.yaml
+    with:
+      targetEnv: Production
     secrets: inherit
