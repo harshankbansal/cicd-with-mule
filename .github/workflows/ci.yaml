@@ -1,4 +1,4 @@
-name: CI only
+name: CI and CD
 
 on:
   workflow_dispatch:
@@ -14,11 +14,6 @@ defaults:
       shell: bash  
 
 jobs:
-  hello-world:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Echo"
-        run: echo 'hello world!!'
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -37,7 +32,7 @@ jobs:
       - name: Run Unit tests
         run: mvn clean test
         
-  publish_to_exchange:
+  publish-to-exchange:
     runs-on: ubuntu-latest
     name: Publish to exchange
     needs:
@@ -65,46 +60,15 @@ jobs:
                 -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
   
   deploy:
-    runs-on: ubuntu-latest
     name: Deploy To ${{ matrix.target }}
-    environment: ${{ matrix.target }}
+    needs: 
+      - publish-to-exchange
     strategy:
       fail-fast: true
       max-parallel: 1
       matrix:
         target: [ Dev, UAT ]
-    needs: 
-      - publish_to_exchange
-    steps:
-      - name: Setup Java JDK
-        uses: actions/setup-java@v3.13.0
-        with:
-          java-version: 8
-          distribution: zulu
-          architecture: x64
-          overwrite-settings: false
-          
-      - uses: actions/checkout@v2
-          
-      - name: Deploy to ${{ matrix.target }}
-        env:
-          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
-          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
-          DEPLOY_ENV: ${{ vars.DEPLOY_ENV }}
-          MULE_ENV: ${{ vars.MULE_ENV }}
-          DEPLOY_TARGET: ${{ vars.DEPLOY_TARGET }}
-          MAVEN_SETTINGS_SERVER_ID: ${{ vars.MAVEN_SETTINGS_SERVER_ID }}
-          DEPLOY_REPLICAS: ${{ vars.DEPLOY_REPLICAS }}
-          DEPLOY_VCORES: ${{ vars.DEPLOY_VCORES }}
-        run: | 
-            mvn clean deploy -DskipTests \
-                -DmuleDeploy \
-                --settings .github/mvn-config/settings.xml \
-                -Ddeploy.env=$DEPLOY_ENV \
-                -Dmule.env=$MULE_ENV \
-                -Ddeploy.target=$DEPLOY_TARGET \
-                -Dmvnsettings.serverid=$MAVEN_SETTINGS_SERVER_ID \
-                -Ddeploy.replicas=$DEPLOY_REPLICAS \
-                -Ddeploy.vCores=$DEPLOY_VCORES \
-                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
-                -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      targetEnv: ${{ matrix.target }}
+    secrets: inherit
