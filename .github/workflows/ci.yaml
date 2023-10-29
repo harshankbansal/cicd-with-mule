@@ -1,7 +1,7 @@
 name: CI only
 
 on:
-  repository_dispatch:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -87,7 +87,7 @@ jobs:
             mvn clean deploy -DskipTests \ 
                 -DmuleDeploy \
                 --settings .github/mvn-config/settings.xml \
-                -Ddeploy.env=$DEPLOY_ENV  \
+                -Ddeploy.env=$DEPLOY_ENV \
                 -Dmule.env=$MULE_ENV \
                 -Ddeploy.target=$DEPLOY_TARGET \
                 -Dmvnsettings.serverid=$MAVEN_SETTINGS_SERVER_ID \
