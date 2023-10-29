@@ -48,6 +48,13 @@
 						<properties>
 							<mule.env>${mule.env}</mule.env>
 						</properties>
+						<integrations>
+							<services>
+								<objectStoreV2>
+									<enabled>true</enabled>
+								</objectStoreV2>
+							</services>
+						</integrations>
 					</cloudhub2Deployment>
 				</configuration>
 			</plugin>
