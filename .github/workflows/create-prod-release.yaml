@@ -54,7 +54,7 @@ jobs:
     needs: 
       - pom-semver-without-snapshot
     env:
-      gitRef: :{{ inputs.gitRef }}
+      gitRef: ${{ inputs.gitRef }}
       tagVersion: v${{needs.pom-semver-without-snapshot.outputs.newPomVersion}}
     steps:
       - name: Get SHA hash of gitRef
@@ -64,7 +64,7 @@ jobs:
             const commit = await github.rest.repos.getCommit({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: `${gitRef}`
+              ref: ${{ inputs.gitRef }}
             })
             console.log(commit)
  
