@@ -36,7 +36,7 @@ jobs:
     name: Publish to exchange
     needs:
       - unit-tests
-    uses: ./.github/workflows/deploy.yaml
+    uses: ./.github/workflows/publish-to-exchange.yaml
     with:
       gitRef: ${{ vars.GITHUB_SHA }}
     secrets: inherit
