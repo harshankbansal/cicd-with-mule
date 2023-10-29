@@ -22,8 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy To ${{ inputs.targetEnv }}
     environment: ${{ inputs.targetEnv }}
-    needs: 
-      - publish_to_exchange
     steps:
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
