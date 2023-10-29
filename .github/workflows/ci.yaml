@@ -84,7 +84,7 @@ jobs:
           EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
           EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
         run: | 
-            mvn clean deploy -DskipTests \ 
+            mvn clean deploy -DskipTests \
                 -DmuleDeploy \
                 --settings .github/mvn-config/settings.xml \
                 -Ddeploy.env=$DEPLOY_ENV \
@@ -92,6 +92,6 @@ jobs:
                 -Ddeploy.target=$DEPLOY_TARGET \
                 -Dmvnsettings.serverid=$MAVEN_SETTINGS_SERVER_ID \
                 -Ddeploy.replicas=$DEPLOY_REPLICAS \
-                -Ddeploy.vCores=$DEPLOY_VCORES \ 
+                -Ddeploy.vCores=$DEPLOY_VCORES \
                 -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
                 -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
