@@ -1,0 +1,62 @@
+name: Create production release from commit
+
+on:
+  workflow_call:
+    inputs:
+      gitRef:
+        required: true
+        type: string
+        description: The branch, tag or SHA to checkout
+    secrets:
+      EXCHANGE_CLIENT_ID:
+        required: true
+      EXCHANGE_CLIENT_SECRET:
+        required: true  
+  push:
+    branches:
+      - feature/*
+ 
+defaults:
+  run:
+    shell: bash
+    
+jobs:
+  
+  remove-snapshot-from-pom-semver:
+    runs-on: ubuntu-latest
+    name: Get Pom Version
+    outputs:
+      newPomVersion: ${{ steps.getNewPomVersion.outputs.newPomVersion }}
+    steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.13.0
+        with:
+          java-version: 8  
+          distribution: zulu
+          architecture: x64
+          overwrite-settings: false
+          
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.gitRef }}
+      
+      - id: removeSnapshot
+        name: Remove SNAPSHOT
+        run: mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
+      
+      - id: getNewPomVersion
+        name: Get new pom version
+        run: |
+          newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
+          echo "New version after removing SNAPSHOT = $newPomVersion"
+          echo "newPomVersion=$newPomVersion" >> "$GITHUB_OUTPUT"
+  
+  create-git-tag:
+    runs-on: ubuntu-latest
+    name: Create tag
+    env:
+      tagVersion: ${{needs.remove-snapshot-from-pom-semver.outputs.newPomVersion}}
+    steps:
+      - name: Echo
+        run: echo "create tag with verison: ${tagVersion}"
+ 

@@ -11,7 +11,7 @@ on:
 
 defaults:
   run:
-      shell: bash  
+    shell: bash  
 
 jobs:
 
@@ -32,8 +32,8 @@ jobs:
       - name: Run Unit tests
         run: mvn clean test
         
-  publish-to-exchange:
-    name: Publish to exchange
+  publish-to-artifactory:
+    name: Publish to artifactory
     needs:
       - unit-tests
     uses: ./.github/workflows/publish-to-exchange.yaml
@@ -41,8 +41,8 @@ jobs:
       gitRef: ${{ vars.GITHUB_SHA }}
     secrets: inherit
   
-  deployToNonprod:
-    name: Deploy To ${{ matrix.target }}
+  deployToNonProd:
+    name: Deploy to ${{ matrix.target }}
     needs: 
       - publish-to-exchange
     strategy:
