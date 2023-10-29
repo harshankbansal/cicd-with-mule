@@ -64,7 +64,7 @@ jobs:
             const commit = await github.rest.repos.getCommit({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: ${{ inputs.gitRef }}
+              ref: '${{ inputs.gitRef }}'
             })
             console.log(commit)
  
