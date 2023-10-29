@@ -12,10 +12,7 @@ on:
         required: true
       EXCHANGE_CLIENT_SECRET:
         required: true  
-  push:
-    branches:
-      - feature/*
- 
+        
 defaults:
   run:
     shell: bash
@@ -46,7 +43,7 @@ jobs:
             mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
             newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
             echo "New version after removing SNAPSHOT = $newPomVersion"
-            echo "newPomVersion=$newPomVersion" >> "$GITHUB_OUTPUT"    
+            echo "newPomVersion=$newPomVersion" >> "$GITHUB_OUTPUT" 
 
   get-commit-sha-for-ref:
     runs-on: ubuntu-latest
@@ -67,6 +64,7 @@ jobs:
             const sha = commit.data.sha
             console.log(`Got commit SHA: ${sha}`)
             return sha.toString()
+            
   create-git-tag:
     runs-on: ubuntu-latest
     name: Create tag
@@ -76,6 +74,8 @@ jobs:
     env:
       TAG_NAME: v${{ needs.pom-semver-without-snapshot.outputs.newPomVersion }}
       TAG_SHA: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
+    outputs:
+      tagName: ${{ vars.TAG_NAME }}
     steps:
       - name: Create tag
         uses: actions/github-script@v5
@@ -89,3 +89,23 @@ jobs:
               sha: `${process.env.TAG_SHA.replaceAll('"', '')}`
             })
             console.log(`Tag created: ${createRefResponse.data.url}`)
+
+  publish-to-artifactory:
+    name: Publish to artifactory
+    needs:
+      - create-git-tag
+    uses: ./.github/workflows/publish-to-exchange.yaml
+    with:
+      gitRef: ${{ needs.create-git-tag.outputs.tagName }}
+      removeSnapshot: true
+    secrets: inherit
+
+  deployToProd:
+    name: Deploy to ${{ matrix.target }}
+    needs: 
+      - publish-to-artifactory
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      targetEnv: Production
+    secrets: inherit
+    
