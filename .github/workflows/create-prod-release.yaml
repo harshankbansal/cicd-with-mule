@@ -22,7 +22,15 @@ defaults:
     shell: bash
     
 jobs:
-
+  hello-world:
+    runs-on: ubuntu-latest
+    env:
+      inputRef: ${{ inputs.gitRef }}
+      variableRef: ${{ github.ref_name }}
+    steps:
+      - run: | 
+          echo "${inputRef}-${variableRef}"
+          echo "${{ github }}
   pom-semver-without-snapshot:
     runs-on: ubuntu-latest
     name: Get Pom Version
