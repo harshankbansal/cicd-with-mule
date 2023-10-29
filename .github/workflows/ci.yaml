@@ -61,16 +61,14 @@ jobs:
   
   deploy:
     name: Deploy To ${{ matrix.target }}
-    runs-on: ubuntu-latest
-    environment: ${{ matrix.target }}
     needs: 
-      - publish_to_exchange
+      - publish-to-exchange
     strategy:
       fail-fast: true
       max-parallel: 1
       matrix:
         target: [ Dev, UAT ]
-    uses: ./.github/workflows/deployment.yml
+    uses: ./.github/workflows/deploy.yml
     with:
       target-env: ${ { matrix.target } }
     secrets: inherit
