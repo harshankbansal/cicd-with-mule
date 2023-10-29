@@ -44,7 +44,7 @@ jobs:
   deployToNonProd:
     name: Deploy to ${{ matrix.target }}
     needs: 
-      - publish-to-exchange
+      - publish-to-artifactory
     strategy:
       fail-fast: true
       max-parallel: 1
