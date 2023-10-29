@@ -53,8 +53,8 @@ jobs:
 
       - name: Publish To Exchange
         env:
-          EXCHANGE_CLIENT_ID: ${{ EXCHANGE_CLIENT_ID }}
-          EXCHANGE_CLIENT_SECRET: ${{ EXCHANGE_CLIENT_SECRET }}
+          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
         run: |
             mvn clean deploy \
                 -DskipTests \
@@ -81,8 +81,8 @@ jobs:
       - name: Deploy to Dev
         environment: Dev
         env:
-          EXCHANGE_CLIENT_ID: ${{ EXCHANGE_CLIENT_ID }}
-          EXCHANGE_CLIENT_SECRET: ${{ EXCHANGE_CLIENT_SECRET }}
+          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
         run: | 
             mvn clean deploy -DskipTests \ 
                 -DmuleDeploy \
