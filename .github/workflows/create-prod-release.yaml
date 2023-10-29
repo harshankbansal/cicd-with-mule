@@ -88,4 +88,4 @@ jobs:
               ref: `refs/tags/${process.env.TAG_NAME}`,
               sha: `${process.env.TAG_SHA.replaceAll('"', '')}`
             })
-            console.log(createRefResponse)
+            console.log(`Tag created: ${createRefResponse.data.url}`)
