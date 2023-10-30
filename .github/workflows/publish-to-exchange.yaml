@@ -52,7 +52,7 @@ jobs:
           REMOVE_SNAPSHOT: ${{ inputs.removeSnapshotFromVersion }}
           OVERRIDE_VERSION: ${{ inputs.withVersion }}
         run: |
-            if [ -z "$OVERRIDE_VERSION" ]; then mvn versions:set -DnewVersion=${OVERRIDE_VERSION}
+            if [ -n "$OVERRIDE_VERSION" ]; then mvn versions:set -DnewVersion=${OVERRIDE_VERSION}
             elif [ "$REMOVE_SNAPSHOT" == true ]; then mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
             fi
             newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
