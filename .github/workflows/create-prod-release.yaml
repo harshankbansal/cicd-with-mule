@@ -106,7 +106,7 @@ jobs:
     secrets: inherit
 
   deployToProd:
-    name: Deploy to ${{ matrix.target }}
+    name: Deploy to Production
     needs: 
       - publish-to-artifactory
     uses: ./.github/workflows/deploy.yaml
