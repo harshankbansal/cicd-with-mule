@@ -11,7 +11,7 @@ on:
 
 defaults:
   run:
-      shell: bash  
+    shell: bash  
 
 jobs:
 
@@ -27,42 +27,24 @@ jobs:
           architecture: x64
           overwrite-settings: false
           
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Run Unit tests
         run: mvn clean test
         
-  publish-to-exchange:
-    runs-on: ubuntu-latest
-    name: Publish to exchange
+  publish-to-artifactory:
+    name: Publish to artifactory
     needs:
       - unit-tests
-    steps:
-      - name: Setup Java JDK
-        uses: actions/setup-java@v3.13.0
-        with:
-          java-version: 8
-          distribution: zulu
-          architecture: x64
-          overwrite-settings: false
-          
-      - uses: actions/checkout@v2
-
-      - name: Publish To Exchange
-        env:
-          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
-          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
-        run: |
-            mvn clean deploy \
-                -DskipTests \
-                --settings .github/mvn-config/settings.xml \
-                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
-                -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
+    uses: ./.github/workflows/publish-to-exchange.yaml
+    with:
+      gitRef: ${{ vars.GITHUB_SHA }}
+    secrets: inherit
   
-  deploy:
-    name: Deploy To ${{ matrix.target }}
+  deploy-to-nonprod:
+    name: Deploy to ${{ matrix.target }}
     needs: 
-      - publish-to-exchange
+      - publish-to-artifactory
     strategy:
       fail-fast: true
       max-parallel: 1
@@ -72,3 +54,4 @@ jobs:
     with:
       targetEnv: ${{ matrix.target }}
     secrets: inherit
+
