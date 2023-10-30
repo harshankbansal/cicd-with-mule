@@ -13,6 +13,12 @@ on:
         type: boolean
         default: false
         description: If 'SNAPSHOT' needs to be removed from version before publishing to exchange
+      
+      withVersion:
+        required: false
+        type: string
+        description: Verison to use while publishing to exchange. Will be derived from pom if not provided
+
     secrets:
       EXCHANGE_CLIENT_ID:
         required: true
@@ -29,6 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Publish to exchange
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.gitRef }}
+          
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
         with:
@@ -36,18 +46,17 @@ jobs:
           distribution: zulu
           architecture: x64
           overwrite-settings: false
-          
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.gitRef }}
 
-      - name: Remove SNAPSHOT if required
-        if: ${{ inputs.removeSnapshotFromVersion}}
+      - name: Set version in pom
+        env:
+          REMOVE_SNAPSHOT: ${{ inputs.removeSnapshotFromVersion }}
+          OVERRIDE_VERSION: ${{ inputs.withVersion }}
         run: |
-            mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
+            if [ -z "$OVERRIDE_VERSION" ]; then mvn versions:set -DnewVersion=${OVERRIDE_VERSION}
+            elif [ "$OVERRIDE_VERSION" == true ]; then mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
+            fi
             newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
-            echo "New version after removing SNAPSHOT = $newPomVersion"
-            echo "newPomVersion=$newPomVersion" >> "$GITHUB_OUTPUT" 
+            echo "POM Version that will be published = $newPomVersion"
             
       - name: Publish To Exchange
         env:

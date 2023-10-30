@@ -76,7 +76,7 @@ jobs:
       - get-commit-sha-for-ref
     if: ${{ always() && !failure() && !cancelled() }}
     env:
-      TAG_NAME: v${{ needs.pom-semver-without-snapshot.outputs.newPomVersion }}
+      TAG_NAME: v${{ inputs.withVersion || needs.pom-semver-without-snapshot.outputs.newPomVersion }}
       TAG_SHA: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
     outputs:
       tagName: ${{ vars.TAG_NAME }}
@@ -102,6 +102,7 @@ jobs:
     with:
       gitRef: ${{ needs.create-git-tag.outputs.tagName }}
       removeSnapshotFromVersion: true
+      withVersion: ${{ inputs.withVersion || needs.pom-semver-without-snapshot.outputs.newPomVersion }}
     secrets: inherit
 
   deployToProd:
