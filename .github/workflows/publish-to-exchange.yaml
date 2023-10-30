@@ -53,7 +53,7 @@ jobs:
           OVERRIDE_VERSION: ${{ inputs.withVersion }}
         run: |
             if [ -z "$OVERRIDE_VERSION" ]; then mvn versions:set -DnewVersion=${OVERRIDE_VERSION}
-            elif [ "$OVERRIDE_VERSION" == true ]; then mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
+            elif [ "$REMOVE_SNAPSHOT" == true ]; then mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
             fi
             newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
             echo "POM Version that will be published = $newPomVersion"
