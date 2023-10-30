@@ -41,7 +41,7 @@ jobs:
 
   pom-semver-without-snapshot:
     runs-on: ubuntu-latest
-    if: "${{ inputs.withVersion != '' }}"
+    if: "${{ inputs.withVersion == '' }}"
     name: Get Pom Version
     needs:
       - get-commit-sha-for-ref
