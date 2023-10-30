@@ -54,12 +54,4 @@ jobs:
     with:
       targetEnv: ${{ matrix.target }}
     secrets: inherit
-    
-  createRelease:
-    if: ${{ github.event_name == 'push' }}
-    needs: 
-      - deploy-to-nonprod
-    uses: ./.github/workflows/create-prod-release.yaml
-    with:
-      gitRef: ${{ github.ref_name }}
-    secrets: inherit
+

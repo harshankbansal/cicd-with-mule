@@ -1,17 +1,12 @@
 name: Create production release from commit
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       gitRef:
         required: true
         type: string
         description: The branch, tag or SHA to checkout
-    secrets:
-      EXCHANGE_CLIENT_ID:
-        required: true
-      EXCHANGE_CLIENT_SECRET:
-        required: true  
         
 defaults:
   run:
