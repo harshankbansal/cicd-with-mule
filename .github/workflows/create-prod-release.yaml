@@ -7,6 +7,11 @@ on:
         required: true
         type: string
         description: The branch, tag or SHA to checkout
+      withVersion:
+        required: false
+        type: string
+        description: |
+          Version number of the artifact to publish to exchange. Or the version already exists in exchange. Defaults to POM version (removing SNAPSHOT)
         
 defaults:
   run:
@@ -14,9 +19,32 @@ defaults:
     
 jobs:
 
+  get-commit-sha-for-ref:
+    runs-on: ubuntu-latest
+    name: Get Commit SHA
+    outputs:
+      sha: ${{ steps.getSha.outputs.result }}
+    steps:
+      - name: Get SHA hash of gitRef
+        id: getSha
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const commit = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ inputs.gitRef || github.ref_name }}'
+            })
+            const sha = commit.data.sha
+            console.log(`Got commit SHA: ${sha}`)
+            return sha.toString()
+
   pom-semver-without-snapshot:
     runs-on: ubuntu-latest
+    if: "${{ inputs.withVersion != '' }}"
     name: Get Pom Version
+    needs:
+      - get-commit-sha-for-ref
     outputs:
       newPomVersion: ${{ steps.removeSnapshot.outputs.newPomVersion }}
     steps:
@@ -39,26 +67,6 @@ jobs:
             newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
             echo "New version after removing SNAPSHOT = $newPomVersion"
             echo "newPomVersion=$newPomVersion" >> "$GITHUB_OUTPUT" 
-
-  get-commit-sha-for-ref:
-    runs-on: ubuntu-latest
-    name: Get Commit SHA
-    outputs:
-      sha: ${{ steps.getSha.outputs.result }}
-    steps:
-      - name: Get SHA hash of gitRef
-        id: getSha
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const commit = await github.rest.repos.getCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: '${{ inputs.gitRef || github.ref_name }}'
-            })
-            const sha = commit.data.sha
-            console.log(`Got commit SHA: ${sha}`)
-            return sha.toString()
             
   create-git-tag:
     runs-on: ubuntu-latest
@@ -66,6 +74,7 @@ jobs:
     needs: 
       - pom-semver-without-snapshot
       - get-commit-sha-for-ref
+    if: ${{ always() && !failure() && !cancelled() }}
     env:
       TAG_NAME: v${{ needs.pom-semver-without-snapshot.outputs.newPomVersion }}
       TAG_SHA: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
