@@ -6,6 +6,9 @@ on:
       targetEnv:
         required: true
         type: string
+      gitRef:
+        required: false
+        type: string
     secrets:
       EXCHANGE_CLIENT_ID:
         required: true
@@ -32,6 +35,8 @@ jobs:
           overwrite-settings: false
           
       - uses: actions/checkout@v4
+        with: 
+          ref: ${{ inputs.gitRef || github.ref }}
           
       - name: Deploy to ${{ inputs.targetEnv }}
         env:

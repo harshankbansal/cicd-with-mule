@@ -1,9 +1,17 @@
-name: Create production release from commit
+name: Deployment to production
 
 on:
   push:
     branches:
       - release/*
+  workflow_call:
+    inputs:
+      withVersion:
+        type: string
+        required: true
+      commitSHA:
+        type: string
+        required: true
         
 defaults:
   run:
@@ -13,6 +21,7 @@ jobs:
 
   get-pom-semver:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     name: Get Pom Version
     outputs:
       pomVersion: ${{ steps.getPomVersion.outputs.pomVersion }}
@@ -40,8 +49,8 @@ jobs:
     needs: 
       - get-pom-semver
     env:
-      TAG_NAME: v${{ needs.get-pom-semver.outputs.newPomVersion }}
-      TAG_SHA: ${{ github.sha }}
+      TAG_NAME: v${{ inputs.withVersion || needs.get-pom-semver.outputs.newPomVersion }}
+      TAG_SHA: ${{ inputs.commitSHA || github.sha }}
     outputs:
       tagName: ${{ vars.TAG_NAME }}
     steps:
