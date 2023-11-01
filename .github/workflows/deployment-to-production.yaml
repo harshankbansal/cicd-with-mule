@@ -55,7 +55,7 @@ jobs:
       TAG_NAME: v${{ inputs.withVersion || needs.get-pom-semver.outputs.newPomVersion }}
       TAG_SHA: ${{ inputs.commitSHA || github.sha }}
     outputs:
-      tagName: ${{ steps.createTag.outputs.response }}
+      tagName: ${{ steps.createTag.outputs.result }}
     steps:
       - name: Create tag
         id: createTag
