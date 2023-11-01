@@ -55,9 +55,10 @@ jobs:
       TAG_NAME: v${{ inputs.withVersion || needs.get-pom-semver.outputs.newPomVersion }}
       TAG_SHA: ${{ inputs.commitSHA || github.sha }}
     outputs:
-      tagName: ${{ vars.TAG_NAME }}
+      tagName: ${{ steps.createTag.outputs.result }}
     steps:
       - name: Create tag
+        id: createTag
         uses: actions/github-script@v5
         with:
           script: |
@@ -69,22 +70,24 @@ jobs:
               sha: process.env.TAG_SHA
             })
             console.log(`Tag created: ${createRefResponse.data.url}`)
+            return process.env.TAG_NAME;
 
-  publish-to-artifactory:
+  publish-to-artifactory:  
     name: Publish to artifactory
     needs:
       - create-git-tag
+    if: always() && !failure()
     uses: ./.github/workflows/publish-to-exchange.yaml
     with:
-      gitRef: ${{ needs.create-git-tag.outputs.tagName }}
+      gitRef: ${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
     secrets: inherit
-
+  
   deployToProd:
     name: Deploy to Production
     needs: 
       - publish-to-artifactory
+    if: always() && !failure()
     uses: ./.github/workflows/deploy.yaml
     with:
       targetEnv: Production
     secrets: inherit
-    
