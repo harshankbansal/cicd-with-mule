@@ -70,21 +70,98 @@ jobs:
             })
             console.log(`Tag created: ${createRefResponse.data.url}`)
 
-  publish-to-artifactory:
-    name: Publish to artifactory
-    needs:
-      - create-git-tag
-    uses: ./.github/workflows/publish-to-exchange.yaml
-    with:
-      gitRef: ${{ needs.create-git-tag.outputs.tagName }}
-    secrets: inherit
+#Teh following two jobs (publish to artifactory and deploy) 
+# should ideally be picked from the reusable workflow. 
+# But it seems like there is a limit to the nesting of these.
 
-  deployToProd:
-    name: Deploy to Production
-    needs: 
-      - publish-to-artifactory
-    uses: ./.github/workflows/deploy.yaml
-    with:
-      targetEnv: Production
-    secrets: inherit
+  # publish-to-artifactory:
+  
+  #   name: Publish to artifactory
+  #   needs:
+  #     - create-git-tag
+  #   uses: ./.github/workflows/publish-to-exchange.yaml
+  #   with:
+  #     gitRef: ${{ needs.create-git-tag.outputs.tagName }}
+  #   secrets: inherit
+  
+  # deployToProd:
+  #   name: Deploy to Production
+  #   needs: 
+  #     - publish-to-artifactory
+  #   uses: ./.github/workflows/deploy.yaml
+  #   with:
+  #     targetEnv: Production
+  #   secrets: inherit
     
+  publish-to-exchange:
+    runs-on: ubuntu-latest
+    name: Publish to exchange
+    needs:
+          - create-git-tag
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.create-git-tag.outputs.tagName }}
+          
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.13.0
+        with:
+          java-version: 8
+          distribution: zulu
+          architecture: x64
+          overwrite-settings: false
+            
+      - name: Publish To Exchange
+        env:
+          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
+        run: |
+            mvn clean deploy \
+                -DskipTests \
+                --settings .github/mvn-config/settings.xml \
+                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
+                -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy To Production
+    needs:
+      - publish-to-exchange
+      - create-git-tag
+    environment: Production
+    steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.13.0
+        with:
+          java-version: 8
+          distribution: zulu
+          architecture: x64
+          overwrite-settings: false
+          
+      - uses: actions/checkout@v4
+        with: 
+          ref: ${{ needs.create-git-tag.outputs.tagName }}
+          
+      - name: Deploy to Production
+        env:
+          EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
+          EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
+          DEPLOY_ENV: ${{ vars.DEPLOY_ENV }}
+          MULE_ENV: ${{ vars.MULE_ENV }}
+          DEPLOY_TARGET: ${{ vars.DEPLOY_TARGET }}
+          MAVEN_SETTINGS_SERVER_ID: ${{ vars.MAVEN_SETTINGS_SERVER_ID }}
+          DEPLOY_REPLICAS: ${{ vars.DEPLOY_REPLICAS }}
+          DEPLOY_VCORES: ${{ vars.DEPLOY_VCORES }}
+        run: | 
+            mvn clean deploy -DskipTests \
+                -DmuleDeploy \
+                --settings .github/mvn-config/settings.xml \
+                -Ddeploy.env=$DEPLOY_ENV \
+                -Dmule.env=$MULE_ENV \
+                -Ddeploy.target=$DEPLOY_TARGET \
+                -Dmvnsettings.serverid=$MAVEN_SETTINGS_SERVER_ID \
+                -Ddeploy.replicas=$DEPLOY_REPLICAS \
+                -Ddeploy.vCores=$DEPLOY_VCORES \
+                -Dexchange.clientId=$EXCHANGE_CLIENT_ID \
+                -Dexchange.clientSecret=$EXCHANGE_CLIENT_SECRET
