@@ -52,6 +52,8 @@ jobs:
           shortVersion=${NEW_POM_VERSION%.*}
           echo "creating branch with name release/${shortVersion}"
           git checkout -b release/${shortVersion}
+          git config --global user.email "github-action-workflows@example.com"
+          git config --global user.name "Github Actions Workflow"
           git commit pom.xml -m "Pom updated with verison = ${NEW_POM_VERSION}"
           git push origin HEAD:release/${shortVersion}
           git status
