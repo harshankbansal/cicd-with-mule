@@ -38,7 +38,7 @@ jobs:
             })
             const sha = commit.data.sha
             console.log(`Got commit SHA: ${sha}`)
-            return sha.toString().replaceAll('"','')
+            return sha
   
   create-new-release-branch:
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
+          ref: "${{ needs.get-commit-sha-for-ref.outputs.sha }}"
 
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
