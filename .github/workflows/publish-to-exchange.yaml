@@ -7,18 +7,7 @@ on:
         required: true
         type: string
         description: The branch, tag or SHA to checkout
-      
-      removeSnapshotFromVersion:
-        required: false
-        type: boolean
-        default: false
-        description: If 'SNAPSHOT' needs to be removed from version before publishing to exchange
-      
-      withVersion:
-        required: false
-        type: string
-        description: Verison to use while publishing to exchange. Will be derived from pom if not provided
-
+        
     secrets:
       EXCHANGE_CLIENT_ID:
         required: true
@@ -46,17 +35,6 @@ jobs:
           distribution: zulu
           architecture: x64
           overwrite-settings: false
-
-      - name: Set version in pom
-        env:
-          REMOVE_SNAPSHOT: ${{ inputs.removeSnapshotFromVersion }}
-          OVERRIDE_VERSION: ${{ inputs.withVersion }}
-        run: |
-            if [ -n "$OVERRIDE_VERSION" ]; then mvn versions:set -DnewVersion=${OVERRIDE_VERSION}
-            elif [ "$REMOVE_SNAPSHOT" == true ]; then mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
-            fi
-            newPomVersion=$(mvn help:evaluate '-Dexpression=project.version' -q -DforceStdout)
-            echo "POM Version that will be published = $newPomVersion"
             
       - name: Publish To Exchange
         env:
