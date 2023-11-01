@@ -23,6 +23,8 @@ jobs:
   create-new-release-branch:
     runs-on: ubuntu-latest
     name: Create release branch
+    outputs:
+          commitSHA:  ${{ steps.createReleaseBranch.outputs.commitSHA }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,6 +47,7 @@ jobs:
             echo "Pom updated with verison = ${NEW_POM_VERSION}"
 
       - name: Push to new release branch
+        id: createReleaseBranch
         env:
           NEW_POM_VERSION: ${{ inputs.withVersion }}
         run: |
@@ -57,3 +60,15 @@ jobs:
           git commit pom.xml -m "Pom updated with verison = ${NEW_POM_VERSION}"
           git push origin HEAD:release/${shortVersion}
           git status
+          commitSHA=(git rev-parse HEAD)
+          echo "commitSHA=$commitSHA" >> $GITHUB_OUTPUT
+          
+  deploy-to-prod:
+    name: Deploy to Production
+    needs: 
+      - create-new-release-branch
+    uses: ./.github/workflows/deployment-to-production.yaml
+    with:
+      withVersion: ${{ inputs.withVersion }}
+      commitSHA: ${{ needs.create-new-release-branch.outputs.commitSHA }}
+    secrets: inherit
