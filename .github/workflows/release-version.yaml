@@ -19,36 +19,14 @@ defaults:
     shell: bash
 
 jobs:
-
-  get-commit-sha-for-ref:
-    runs-on: ubuntu-latest
-    name: Get Commit SHA
-    outputs:
-      sha: ${{ steps.getSha.outputs.result }}
-    steps:
-      - name: Get SHA hash of gitRef
-        id: getSha
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const commit = await github.rest.repos.getCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: '${{ inputs.gitRef || github.ref_name }}'
-            })
-            const sha = commit.data.sha
-            console.log(`Got commit SHA: ${sha}`)
-            return sha.toString()
   
   create-new-release-branch:
     runs-on: ubuntu-latest
     name: Create release branch
-    needs: 
-      - get-commit-sha-for-ref
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
+          ref: "${{ inputs.gitRef }}"
 
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
@@ -70,6 +48,12 @@ jobs:
         env:
           NEW_POM_VERSION: ${{ inputs.withVersion }}
         run: |
+          set -x
           shortVersion=${NEW_POM_VERSION%.*}
           echo "creating branch with name release/${shortVersion}"
-          
+          git checkout -b release/${shortVersion}
+          git config --global user.email "github-action-workflows@example.com"
+          git config --global user.name "Github Actions Workflow"
+          git commit pom.xml -m "Pom updated with verison = ${NEW_POM_VERSION}"
+          git push origin HEAD:release/${shortVersion}
+          git status
