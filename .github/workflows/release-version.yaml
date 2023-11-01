@@ -60,7 +60,7 @@ jobs:
           git commit pom.xml -m "Pom updated with verison = ${NEW_POM_VERSION}"
           git push origin HEAD:release/${shortVersion}
           git status
-          commitSHA=(git rev-parse HEAD)
+          commitSHA=$(git rev-parse HEAD)
           echo "commitSHA=$commitSHA" >> $GITHUB_OUTPUT
           
   deploy-to-prod:
