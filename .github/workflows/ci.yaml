@@ -51,6 +51,9 @@ jobs:
       matrix:
         target: [ Dev, UAT ]
     uses: ./.github/workflows/deploy.yaml
+    if: |
+      (github.event_name == 'push') ||
+      (github.event_name == 'pull_request' && matrix.target != "Dev" )
     with:
       targetEnv: ${{ matrix.target }}
     secrets: inherit
