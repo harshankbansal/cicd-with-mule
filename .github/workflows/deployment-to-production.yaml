@@ -1,4 +1,4 @@
-name: Create production release from commit
+name: Deployment to production
 
 on:
   push:
