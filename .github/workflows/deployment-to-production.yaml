@@ -50,7 +50,7 @@ jobs:
       - get-pom-semver
     if: |
       always() &&
-      ( inputs.withVersion != '' || needs.get-pom-semver.outputs.pomVersion != '' )
+      (needs.get-pom-semver.result == 'success' || needs.get-pom-semver.result == 'skipped')
     env:
       TAG_NAME: v${{ inputs.withVersion || needs.get-pom-semver.outputs.newPomVersion }}
       TAG_SHA: ${{ inputs.commitSHA || github.sha }}
