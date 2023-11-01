@@ -79,7 +79,7 @@ jobs:
     if: always() && !failure()
     uses: ./.github/workflows/publish-to-exchange.yaml
     with:
-      gitRef: tags/${{ needs.create-git-tag.outputs.tagName }}
+      gitRef: ${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
     secrets: inherit
   
   deployToProd:
