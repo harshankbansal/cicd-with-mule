@@ -90,6 +90,7 @@ jobs:
     name: Deploy to Production
     needs: 
       - publish-to-artifactory
+    if: always() && !failure()
     uses: ./.github/workflows/deploy.yaml
     with:
       targetEnv: Production
