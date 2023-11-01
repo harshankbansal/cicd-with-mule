@@ -52,6 +52,6 @@ jobs:
           shortVersion=${NEW_POM_VERSION%.*}
           echo "creating branch with name release/${shortVersion}"
           git checkout -b release/${shortVersion}
-          git add pom.xml
+          git commit pom.xml -m "Pom updated with verison = ${NEW_POM_VERSION}"
           git push origin HEAD:release/${shortVersion}
           git status
