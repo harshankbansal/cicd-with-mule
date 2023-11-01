@@ -48,6 +48,9 @@ jobs:
     name: Create tag
     needs: 
       - get-pom-semver
+    if: |
+      always() &&
+      (inputs.withVersion || needs.get-pom-semver.outputs.newPomVersion)
     env:
       TAG_NAME: v${{ inputs.withVersion || needs.get-pom-semver.outputs.newPomVersion }}
       TAG_SHA: ${{ inputs.commitSHA || github.sha }}
