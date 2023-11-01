@@ -79,7 +79,7 @@ jobs:
     if: always() && !failure()
     uses: ./.github/workflows/publish-to-exchange.yaml
     with:
-      gitRef: ${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
+      gitRef: tags/${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
     secrets: inherit
   
   deployToProd:
@@ -90,4 +90,5 @@ jobs:
     uses: ./.github/workflows/deploy.yaml
     with:
       targetEnv: Production
+      gitRef: tags/${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
     secrets: inherit
