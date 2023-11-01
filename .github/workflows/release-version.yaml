@@ -1,0 +1,75 @@
+name: Start a release
+# This will create a release branch from a particular SHA or Branch. 
+# It does not do the actual deployment, the deployment will be triggered from a separate workflow that will be autotriggered when the release branch is pushed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      gitRef:
+        required: true
+        type: string
+        description: The branch or commit SHA to checkout
+      withVersion:
+        required: true
+        type: string
+        description: The version to release. This will also determine the version to update in exchange and POM.
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  get-commit-sha-for-ref:
+    runs-on: ubuntu-latest
+    name: Get Commit SHA
+    outputs:
+      sha: ${{ steps.getSha.outputs.result }}
+    steps:
+      - name: Get SHA hash of gitRef
+        id: getSha
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const commit = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ inputs.gitRef || github.ref_name }}'
+            })
+            const sha = commit.data.sha
+            console.log(`Got commit SHA: ${sha}`)
+            return sha.toString()
+  
+  create-new-release-branch:
+    runs-on: ubuntu-latest
+    name: Create release branch
+    needs: 
+      - get-commit-sha-for-ref
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.get-commit-sha-for-ref.outputs.sha }}
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.13.0
+        with:
+          java-version: 8  
+          distribution: zulu
+          architecture: x64
+          overwrite-settings: false
+
+      - id: updatePomVersion
+        name: Update Pom Version
+        env:
+          NEW_POM_VERSION: ${{ inputs.withVersion }}
+        run: |
+            mvn versions:set -DnewVersion=${NEW_POM_VERSION} -DgenerateBackupPoms=false
+            echo "Pom updated with verison = ${NEW_POM_VERSION}"
+
+      - name: Push to new release branch
+        env:
+          NEW_POM_VERSION: ${{ inputs.withVersion }}
+        run: |
+          shortVersion=${NEW_POM_VERSION%.*}
+          echo "creating branch with name release/${shortVersion}"
+          
