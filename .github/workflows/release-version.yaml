@@ -68,11 +68,12 @@ jobs:
         env:
           NEW_POM_VERSION: ${{ inputs.withVersion }}
         run: |
+          set -x
           shortVersion=${NEW_POM_VERSION%.*}
           echo "creating branch with name release/${shortVersion}"
-          echo "git status"
           git status
-          echo "git checkout -b release/${shortVersion}"
           git checkout -b release/${shortVersion}
+          git add pom.xml
           git status
-          
+          git push origin HEAD:release/${shortVersion}
+          git status
