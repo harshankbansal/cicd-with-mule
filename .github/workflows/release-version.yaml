@@ -38,7 +38,7 @@ jobs:
             })
             const sha = commit.data.sha
             console.log(`Got commit SHA: ${sha}`)
-            return sha.toString()
+            return sha.toString().replaceAll('"','')
   
   create-new-release-branch:
     runs-on: ubuntu-latest
