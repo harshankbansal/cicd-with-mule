@@ -69,6 +69,7 @@ jobs:
               sha: process.env.TAG_SHA
             })
             console.log(`Tag created: ${createRefResponse.data.url}`)
+            return process.env.TAG_NAME;
 
 #Teh following two jobs (publish to artifactory and deploy) 
 # should ideally be picked from the reusable workflow. 
