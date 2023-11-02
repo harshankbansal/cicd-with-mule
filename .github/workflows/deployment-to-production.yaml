@@ -52,7 +52,7 @@ jobs:
       always() &&
       (needs.get-pom-semver.result == 'success' || needs.get-pom-semver.result == 'skipped')
     env:
-      TAG_NAME: v${{ inputs.withVersion || needs.get-pom-semver.outputs.newPomVersion }}
+      TAG_NAME: v${{ inputs.withVersion || needs.get-pom-semver.outputs.pomVersion }}
       TAG_SHA: ${{ inputs.commitSHA || github.sha }}
     outputs:
       tagName: ${{ steps.createTag.outputs.result }}
