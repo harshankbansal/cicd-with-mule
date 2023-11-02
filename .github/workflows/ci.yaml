@@ -43,6 +43,7 @@ jobs:
 
   environments-to-deploy:
     runs-on: ubuntu-latest
+    name: Environments To Deploy
     needs:
       - unit-tests
     outputs:
@@ -57,7 +58,7 @@ jobs:
             echo "result=[Dev]" >> "$GITHUB_OUTPUT"
           else if [ "$EVENT_NAME" == "push" ]; then
             echo "result=[Dev, UAT]" >> "$GITHUB_OUTPUT"
-    
+          fi
       
   deploy-to-nonprod:
     name: Deploy to ${{ matrix.target }}
