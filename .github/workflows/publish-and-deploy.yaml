@@ -26,7 +26,7 @@ jobs:
 
   publish-and-deploy:
     runs-on: ubuntu-latest
-    name: Publish and exchange
+    name: Publish and deploy
     environment: ${{ inputs.targetEnv }}
     steps:
       - uses: actions/checkout@v4
