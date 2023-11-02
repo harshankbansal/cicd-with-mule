@@ -43,7 +43,7 @@ jobs:
 
   environments-to-deploy:
     runs-on: ubuntu-latest
-    name: Environments To Deploy
+    name: Set environments to deploy
     needs:
       - unit-tests
     outputs:
@@ -55,11 +55,15 @@ jobs:
         id: envsToDeploy
         run: |
           if [ "$EVENT_NAME" == "pull_request" ]; then
-            echo "result=[Dev]" >> "$GITHUB_OUTPUT"
+            envs='["Dev"]'
           elif [ "$EVENT_NAME" == "push" ]; then
-            echo "result=[Dev, UAT]" >> "$GITHUB_OUTPUT"
-          else echo "result=[]" >> "$GITHUB_OUTPUT"
-          fi;
+            envs='["Dev", "UAT"]'
+          else 
+            echo 'Unable to determine Environments'
+            exit 1
+          fi
+          echo 'result=$envs'
+          echo 'result=$envs' >> "$GITHUB_OUTPUT"
       
   deploy-to-nonprod:
     name: Deploy to ${{ matrix.target }}
