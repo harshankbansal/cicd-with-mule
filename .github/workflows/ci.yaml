@@ -56,9 +56,10 @@ jobs:
         run: |
           if [ "$EVENT_NAME" == "pull_request" ]; then
             echo "result=[Dev]" >> "$GITHUB_OUTPUT"
-          else if [ "$EVENT_NAME" == "push" ]; then
+          elif [ "$EVENT_NAME" == "push" ]; then
             echo "result=[Dev, UAT]" >> "$GITHUB_OUTPUT"
-          fi
+          else echo "result=[]" >> "$GITHUB_OUTPUT"
+          fi;
       
   deploy-to-nonprod:
     name: Deploy to ${{ matrix.target }}
