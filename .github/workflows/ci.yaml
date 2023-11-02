@@ -31,15 +31,6 @@ jobs:
 
       - name: Run Unit tests
         run: mvn clean test
-        
-  publish-to-artifactory:
-    name: Publish to artifactory
-    needs:
-      - unit-tests
-    uses: ./.github/workflows/publish-to-exchange.yaml
-    with:
-      gitRef: ${{ vars.GITHUB_SHA }}
-    secrets: inherit
 
   environments-to-deploy:
     runs-on: ubuntu-latest
@@ -65,17 +56,16 @@ jobs:
           echo "result=$envs"
           echo "result=$envs" >> "$GITHUB_OUTPUT"
       
-  deploy-to-nonprod:
-    name: Deploy to ${{ matrix.target }}
+  deploy:
+    name: Deploy
     needs: 
-      - publish-to-artifactory
       - environments-to-deploy
     strategy:
       fail-fast: true
       max-parallel: 1
       matrix:
         target: ${{ fromJSON(needs.environments-to-deploy.outputs.envsToDeploy) }}
-    uses: ./.github/workflows/deploy.yaml
+    uses: ./.github/workflows/publish-and-deploy.yaml
     with:
       targetEnv: ${{ matrix.target }}
     secrets: inherit
