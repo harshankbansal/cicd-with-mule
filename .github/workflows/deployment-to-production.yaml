@@ -86,9 +86,10 @@ jobs:
     name: Deploy to Production
     needs: 
       - publish-to-artifactory
+      - create-git-tag
     if: always() && !failure()
     uses: ./.github/workflows/deploy.yaml
     with:
       targetEnv: Production
-      gitRef: tags/${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
+      gitRef: ${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
     secrets: inherit
