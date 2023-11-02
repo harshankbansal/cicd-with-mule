@@ -40,20 +40,36 @@ jobs:
     with:
       gitRef: ${{ vars.GITHUB_SHA }}
     secrets: inherit
-  
+
+  environments-to-deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - unit-tests
+    outputs:
+      envsToDeploy: ${{ steps.envsToDeploy.outputs.result }}
+    env:
+      EVENT_NAME: ${{ github.event_name }}
+    steps:
+      - name: Set Environments to deploy
+        id: envsToDeploy
+        run: |
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            echo "result=[Dev]" >> "$GITHUB_OUTPUT"
+          else if [ "$EVENT_NAME" == "push" ]; then
+            echo "result=[Dev, UAT]" >> "$GITHUB_OUTPUT"
+    
+      
   deploy-to-nonprod:
     name: Deploy to ${{ matrix.target }}
     needs: 
       - publish-to-artifactory
+      - environments-to-deploy
     strategy:
       fail-fast: true
       max-parallel: 1
       matrix:
-        target: [ Dev, UAT ]
+        target: ${{ fromJSON(needs.environments-to-deploy.outputs.envsToDeploy) }}
     uses: ./.github/workflows/deploy.yaml
-    if: |
-      (github.event_name == 'push') ||
-      (github.event_name == 'pull_request' && matrix.target != "Dev" )
     with:
       targetEnv: ${{ matrix.target }}
     secrets: inherit
