@@ -21,8 +21,8 @@ jobs:
 
   get-pom-semver:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    name: Get Pom Version
+    if: inputs.withVersion == ''
+    name: Get version from pom if needed
     outputs:
       pomVersion: ${{ steps.getPomVersion.outputs.pomVersion }}
     steps:
@@ -72,24 +72,14 @@ jobs:
             console.log(`Tag created: ${createRefResponse.data.url}`)
             return process.env.TAG_NAME;
 
-  publish-to-artifactory:  
-    name: Publish to artifactory
+  deploy:  
+    name: Deploy to production
     needs:
       - create-git-tag
     if: always() && !failure()
-    uses: ./.github/workflows/publish-to-exchange.yaml
+    uses: ./.github/workflows/publish-and-deploy.yaml
     with:
       gitRef: ${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
-    secrets: inherit
-  
-  deployToProd:
-    name: Deploy to Production
-    needs: 
-      - publish-to-artifactory
-      - create-git-tag
-    if: always() && !failure()
-    uses: ./.github/workflows/deploy.yaml
-    with:
       targetEnv: Production
-      gitRef: ${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
     secrets: inherit
+ 
