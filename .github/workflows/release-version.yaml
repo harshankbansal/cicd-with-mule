@@ -16,7 +16,7 @@ on:
       startProdDeployment:
         default: true
         type: boolean
-        description: If false it will only create release branch and you can deploy the release branch later.
+        description: Start Deployment? If false it will only create release branch and you can deploy the release branch later.
 
 defaults:
   run:
