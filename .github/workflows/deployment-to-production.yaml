@@ -31,7 +31,7 @@ jobs:
       sha: ${{ steps.setCommitSha.outputs.sha }}
     steps:
       - name: Verify branch
-        if: (github.event_name == 'workflow_dispatch') && !startsWith(inputs.branchName, "release/")
+        if: (github.event_name == 'workflow_dispatch') && !startsWith(inputs.branchName, 'release/')
         run: |
           echo "Invalid branch name. Release branch should start with 'release/'"
           exit 1
