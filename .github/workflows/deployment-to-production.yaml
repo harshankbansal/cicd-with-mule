@@ -12,6 +12,12 @@ on:
       commitSHA:
         type: string
         required: true
+  workflow_dispatch:
+    inputs:
+      branchName:
+        description: Name of release branch. Must start with 'release/'
+        type: string
+        required: true
         
 defaults:
   run:
@@ -19,8 +25,44 @@ defaults:
     
 jobs:
 
+  determine-commit-sha:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.setCommitSha.outputs.sha }}
+    steps:
+      - name: Verify branch
+        if: (github.event_name == 'workflow_dispatch') && !startsWith(inputs.branchName, "release/")
+        run: |
+          echo "Invalid branch name. Release branch should start with 'release/'"
+          exit 1
+      - uses: actions/checkout@v4
+      - name: Set Commit SHA
+        id: setCommitSha
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SHA: ${{ inputs.commitSHA }}
+          INPUT_BRANCH: ${{ inputs.branchName }}
+        run: |
+          echo "github.event_name = ${EVENT_NAME}"
+          echo "INPUT_SHA = ${INPUT_SHA}"
+          echo "INPUT_BRANCH = ${INPUT_BRANCH}"
+          if [ "${EVENT_NAME}" == "workflow_dispatch" ]; then
+            commitSHA = $(git rev-parse ${INPUT_BRANCH})
+          elif [ "${EVENT_NAME}" == "push" ]; then
+            commitSHA = ${GITHUB_SHA}
+          elif [ "${EVENT_NAME}" == "workflow_call" ]; then
+            commitSHA = ${INPUT_SHA}
+          else
+            echo "Unable to determine commit SHA for deployment"
+            exit 1
+          fi
+          echo "Retrieved SHA = ${commitSHA}"
+          echo "sha=$(commitSHA)" >> $GITHUB_OUTPUT
+
   get-pom-semver:
     runs-on: ubuntu-latest
+    needs:
+      - determine-commit-sha
     if: inputs.withVersion == ''
     name: Get version from pom if needed
     outputs:
@@ -35,6 +77,8 @@ jobs:
           overwrite-settings: false
           
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.determine-commit-sha.outputs.sha }}
         
       - id: getPomVersion
         name: Get Pom Version
@@ -47,13 +91,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Create tag
     needs: 
+      - determine-commit-sha
       - get-pom-semver
-    if: |
-      always() &&
-      (needs.get-pom-semver.result == 'success' || needs.get-pom-semver.result == 'skipped')
+    if: always() && !failure()
     env:
       TAG_NAME: v${{ inputs.withVersion || needs.get-pom-semver.outputs.pomVersion }}
-      TAG_SHA: ${{ inputs.commitSHA || github.sha }}
+      TAG_SHA: ${{ needs.determine-commit-sha.outputs.sha }}
     outputs:
       tagName: ${{ steps.createTag.outputs.result }}
     steps:
