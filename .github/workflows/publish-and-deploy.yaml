@@ -27,6 +27,7 @@ on:
       skipPublish:
         description: Skip publishing to exchange. Mostly tru when used for production redeployment / rollback.
         default: false
+        type: boolean
 
 defaults:
   run:
