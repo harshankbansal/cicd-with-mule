@@ -69,6 +69,7 @@ jobs:
           IS_WORKFLOW_CALL: ${{ inputs.isWorkflowCall }}
           INPUT_BRANCH: ${{ inputs.branchName }}
         run: |
+          set -x
           echo "EVENT_NAME = ${EVENT_NAME}"
           echo "INPUT_SHA = ${INPUT_SHA}"
           echo "INPUT_BRANCH = ${INPUT_BRANCH}"
