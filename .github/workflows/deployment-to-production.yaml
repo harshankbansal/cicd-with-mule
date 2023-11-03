@@ -12,6 +12,11 @@ on:
       commitSHA:
         type: string
         required: true
+      isWorkflowCall:
+        description: 'To distinguish workflow_call from regular push. Do not set to false when calling from another workflow'
+        type: boolean
+        default: true
+        required: false
   workflow_dispatch:
     inputs:
       branchName:
@@ -51,7 +56,7 @@ jobs:
       sha: ${{ steps.setCommitSha.outputs.sha }}
     steps:
       - name: Verify branch
-        if: (github.event_name == 'workflow_dispatch') && !startsWith(inputs.branchName, 'release/')
+        if: (github.event_name == 'workflow_dispatch') && (!inputs.isWorkflowCall) && !startsWith(inputs.branchName, 'release/')
         run: |
           echo "Invalid branch name. Release branch should start with 'release/'"
           exit 1
