@@ -1,4 +1,4 @@
-name: Start a release
+name: Create release branch and start prod deployment
 # This will create a release branch from a particular SHA or Branch. 
 # It does not do the actual deployment, the deployment will be triggered from a separate workflow that will be autotriggered when the release branch is pushed.
 
@@ -12,7 +12,11 @@ on:
       withVersion:
         required: true
         type: string
-        description: The version to release. This will also determine the version to update in exchange and POM.
+        description: Application Version. This will be updated in POM. This is NOT release branch verison.
+      startProdDeployment:
+        default: true
+        type: boolean
+        description: If false it will only create release branch and you can deploy the release branch later.
 
 defaults:
   run:
@@ -65,6 +69,7 @@ jobs:
           
   deploy-to-prod:
     name: Deploy to Production
+    if: ${{ inputs.startProdDeployment }}
     needs: 
       - create-new-release-branch
     uses: ./.github/workflows/deployment-to-production.yaml
