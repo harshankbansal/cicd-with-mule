@@ -66,18 +66,21 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_SHA: ${{ inputs.commitSHA }}
+          IS_WORKFLOW_CALL: ${{ inputs.IS_WORKFLOW_CALL }}
           INPUT_BRANCH: ${{ inputs.branchName }}
         run: |
-          echo "github.event_name = ${EVENT_NAME}"
+          echo "EVENT_NAME = ${EVENT_NAME}"
           echo "INPUT_SHA = ${INPUT_SHA}"
           echo "INPUT_BRANCH = ${INPUT_BRANCH}"
-          if [ "${EVENT_NAME}" == "workflow_dispatch" ]; then
-            commitSHA = $(git rev-parse ${INPUT_BRANCH})
+          echo "IS_WORKFLOW_CALL = ${IS_WORKFLOW_CALL}"
+          if [ "${EVENT_NAME}" == "workflow_dispatch" and "${IS_WORKFLOW_CALL}" != "true"]; then
+            commitSHA=$(git rev-parse "${INPUT_BRANCH}")
           elif [ "${EVENT_NAME}" == "push" ]; then
-            commitSHA = ${GITHUB_SHA}
+            commitSHA="${GITHUB_SHA}"
           elif [ "${EVENT_NAME}" == "workflow_call" ]; then
-            commitSHA = ${INPUT_SHA}
-          else
+            commitSHA="${INPUT_SHA}"
+          fi
+          if [ -z "${commitSHA}" ]; then
             echo "Unable to determine commit SHA for deployment"
             exit 1
           fi
