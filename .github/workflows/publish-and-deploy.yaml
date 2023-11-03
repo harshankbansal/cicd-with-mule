@@ -1,9 +1,6 @@
 name: Publish and deploy
 
 on:
-  # push:
-  #   branches:
-  #     - release/*
   workflow_call:
     inputs:
       targetEnv:
@@ -17,7 +14,20 @@ on:
         required: true
       EXCHANGE_CLIENT_SECRET:
         required: true
-        
+  
+  workflow_dispatch:
+    inputs:
+      targetEnv:
+        required: true
+        type: environment
+      gitRef:
+        description: Branch / commit / tag to deploy
+        required: false
+        type: string
+      skipPublish:
+        description: Skip publishing to exchange. Mostly tru when used for production redeployment / rollback.
+        default: false
+
 defaults:
   run:
     shell: bash
@@ -42,6 +52,7 @@ jobs:
           overwrite-settings: false
             
       - name: Publish To Exchange
+        if: inputs.skipPublish
         env:
           EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
           EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}

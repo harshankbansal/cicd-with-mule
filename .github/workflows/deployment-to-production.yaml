@@ -1,4 +1,4 @@
-name: Deploy a release branch / commit
+name: Deploy release branch to prod
 
 on:
   push:
@@ -133,4 +133,3 @@ jobs:
       gitRef: ${{ fromJSON(needs.create-git-tag.outputs.tagName) }}
       targetEnv: Production
     secrets: inherit
- 

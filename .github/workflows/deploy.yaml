@@ -1,4 +1,4 @@
-name: CD only
+name: Deploy to env
 
 on:
   workflow_call:
