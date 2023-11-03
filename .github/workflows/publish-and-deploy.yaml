@@ -53,7 +53,7 @@ jobs:
           overwrite-settings: false
             
       - name: Publish To Exchange
-        if: !inputs.skipPublish
+        if: !(inputs.skipPublish)
         env:
           EXCHANGE_CLIENT_ID: ${{ secrets.EXCHANGE_CLIENT_ID }}
           EXCHANGE_CLIENT_SECRET: ${{ secrets.EXCHANGE_CLIENT_SECRET }}
