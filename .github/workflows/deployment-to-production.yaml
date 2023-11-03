@@ -66,7 +66,7 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_SHA: ${{ inputs.commitSHA }}
-          IS_WORKFLOW_CALL: ${{ inputs.IS_WORKFLOW_CALL }}
+          IS_WORKFLOW_CALL: ${{ inputs.isWorkflowCall }}
           INPUT_BRANCH: ${{ inputs.branchName }}
         run: |
           echo "EVENT_NAME = ${EVENT_NAME}"
