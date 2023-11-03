@@ -78,7 +78,7 @@ jobs:
             commitSHA=$(git rev-parse "${INPUT_BRANCH}")
           elif [ "${EVENT_NAME}" == "push" ]; then
             commitSHA="${GITHUB_SHA}"
-          elif [ "${EVENT_NAME}" == "workflow_call" ]; then
+          elif [ "${IS_WORKFLOW_CALL}" == "true" ]; then
             commitSHA="${INPUT_SHA}"
           fi
           if [ -z "${commitSHA}" ]; then
