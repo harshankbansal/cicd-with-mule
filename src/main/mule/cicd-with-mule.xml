@@ -16,7 +16,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 import dw::System
 output application/json
 ---
-{ v: "v1.0.0", envVars : dw::System::envVars() }]]></ee:set-payload>
+{ version: "v1.0.0", domain: p('domain') , envVars : dw::System::envVars() }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
